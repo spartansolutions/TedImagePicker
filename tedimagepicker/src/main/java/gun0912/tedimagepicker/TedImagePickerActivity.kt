@@ -353,7 +353,11 @@ internal class TedImagePickerActivity
         val lastSelectedItems = mediaAdapter.selectedUriList.toList()
 
         val addedItems = newSelectedItems - lastSelectedItems.toSet()
-        val removedItems = lastSelectedItems - newSelectedItems.toSet()
+        val currentAlbumUris = mediaAdapter.getMediaUris()
+        val removedItems = lastSelectedItems.filter { uri ->
+            currentAlbumUris.contains(uri) && !newSelectedItems.contains(uri)
+        }
+
         val updatedPositions = mutableSetOf<Int>()
 
         // add items

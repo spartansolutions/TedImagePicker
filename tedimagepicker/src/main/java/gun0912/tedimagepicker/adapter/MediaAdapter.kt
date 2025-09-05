@@ -77,6 +77,8 @@ internal class MediaAdapter(
         }
     }
 
+    fun getMediaUris(): List<Uri> = items.map { it.uri }
+
     @SuppressLint("ClickableViewAccessibility")
     inner class ImageViewHolder(parent: ViewGroup) :
         BaseViewHolder<ItemGalleryMediaBinding, Media>(parent, R.layout.item_gallery_media) {
