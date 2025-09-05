@@ -352,8 +352,15 @@ internal class TedImagePickerActivity
         val newSelectedItems = selectionTracker.selection.toList()
         val lastSelectedItems = mediaAdapter.selectedUriList.toList()
 
-        val addedItems = newSelectedItems - lastSelectedItems.toSet()
-        val currentAlbumUris = mediaAdapter.getMediaUris()
+        // Consider only media items in the current album
+        val currentAlbumUris = albumAdapter.getItem(selectedPosition).mediaUris.map { it.uri }
+        
+        // Items added in SelectionTracker (only those in current album)
+        val addedItems = newSelectedItems.filter { uri ->
+            currentAlbumUris.contains(uri) && !lastSelectedItems.contains(uri)
+        }
+        
+        // Items removed in SelectionTracker (only those in current album)
         val removedItems = lastSelectedItems.filter { uri ->
             currentAlbumUris.contains(uri) && !newSelectedItems.contains(uri)
         }
@@ -560,11 +567,39 @@ internal class TedImagePickerActivity
             return
         }
 
+        // Backup current selection state when album changes
+        val currentSelectedUris = mediaAdapter.selectedUriList.toList()
+        isUpdatingSelection = true
+        
         binding.selectedAlbum = album
         this.selectedPosition = selectedPosition
         albumAdapter.setSelectedAlbum(album)
         mediaAdapter.replaceAll(album.mediaUris)
+        
+        // Restore previously selected items in new album
+        if (currentSelectedUris.isNotEmpty() && ::selectionTracker.isInitialized) {
+            restoreSelectionAfterAlbumChange(album.mediaUris, currentSelectedUris)
+        }
+        
+        isUpdatingSelection = false
         binding.layoutContent.rvMedia.layoutManager?.scrollToPosition(0)
+    }
+
+    private fun restoreSelectionAfterAlbumChange(albumMediaUris: List<Media>, selectedUris: List<Uri>) {
+        // Filter only selected items that exist in the new album
+        val urisInCurrentAlbum = selectedUris.filter { uri ->
+            albumMediaUris.any { it.uri == uri }
+        }
+        
+        // MediaAdapter maintains the entire selection list
+        mediaAdapter.selectedUriList.clear()
+        mediaAdapter.selectedUriList.addAll(selectedUris)
+        
+        // SelectionTracker selects only items in current album
+        selectionTracker.clearSelection()
+        urisInCurrentAlbum.forEach { selectionTracker.select(it) }
+        
+        updateSelectedUI()
     }
 
     private fun setupListener() {
