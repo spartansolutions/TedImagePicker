@@ -3,10 +3,11 @@
     <!-- Base application theme. -->
     <style name="TedImagePickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:textColorPrimary">@color/black87_disable</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
     <style name="TedImagePickerTheme.Zoom">
-
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
 </resources>

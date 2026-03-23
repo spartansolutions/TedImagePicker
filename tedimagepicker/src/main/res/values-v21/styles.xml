@@ -2,6 +2,7 @@
 
     <style name="TedImagePickerTheme.Zoom">
         <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
 </resources>
